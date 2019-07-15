@@ -1,13 +1,16 @@
 package bigid;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
-
+/**
+* The Project is a basic implementation 
+* of multithreading search in text file.
+*
+* @author  Benlolo Noam
+* @version 1.0
+* @since   2019-07-14 
+*/
 public class Main {
 	public static final int BUNCH = 1000;
 	public static File file = new File("src/bigid/file.txt");
@@ -26,12 +29,12 @@ public class Main {
 	}
 	
 	public static void job() {
-		Aggregator aggregator = new Aggregator(words);
-		String text = "";
-		int lineOffset = 0;
-		int charOffset = 0;
-		int counter = 0;
-		int index = 0;
+		Aggregator aggregator = new Aggregator(words); 
+		String text = ""; // The part of the text for the next thread
+		int lineOffset = 0; // Pointer to save the offset where the thread begins to read the text
+		int charOffset = 0; // Pointer to save the offset where the thread begins to read the text
+		int counter = 0; // Counter to read only a BUNCH of lines
+		int index = 0; // Number of thread created
 
         
         Scanner scan;
@@ -40,34 +43,32 @@ public class Main {
 			scan = scan.useDelimiter("\n");
 					
 			while (scan.hasNext()) {
+				// Read the Bunch of lines we want
 				while (counter < 1000 && scan.hasNext()) {
 					text += scan.next() + "\n";
 					counter++;
 				}
+				
+				// Run the thread
 				NaiveMatcher m = new NaiveMatcher(index, words, text,lineOffset, charOffset);
-				
 				m.start();
+				m.join(); 
 				
-				try {
-					m.join();
-					index ++;
-					//System.out.println(m.index + " " + m.results);
-					aggregator.add(m.results);
-	
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				// Save the results
+				aggregator.add(m.results);
 				
+				// Update all the variables
+				index ++;
 				lineOffset += counter;
 				charOffset += text.length();
 				counter = 0;
 				text = "";		
 			}
+			
+			// Display the results
 			aggregator.display();
-        } catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+        } catch (FileNotFoundException | InterruptedException e) {
+			e.printStackTrace();
 		}
 		
 	}
