@@ -7,6 +7,7 @@ import java.util.Scanner;
 import java.util.concurrent.Semaphore; 
 
 
+
 /**
 * The Project is a basic implementation 
 * of multithreading search in text file.
@@ -15,6 +16,7 @@ import java.util.concurrent.Semaphore;
 * @version 1.0
 * @since   2019-07-14 
 */
+
 public class Main {
 	public static final int BUNCH = 1000;
 	public static final int CONCURRENT_THREADS = 10;
