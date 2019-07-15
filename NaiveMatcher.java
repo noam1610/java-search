@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.concurrent.Semaphore; 
 
 /**
 * The NaiveMatcher will search a list of words
@@ -24,13 +25,15 @@ public class NaiveMatcher extends Thread {
     public HashMap<String, ArrayList<Integer>> results;
 	private ArrayList<Integer> lineOffset = new ArrayList<Integer>();
 	public Integer index;
+	private Semaphore sem; 
 
 	
 	final String[] words;
 
 	
-	NaiveMatcher(Integer index, String[] words, String text, Integer lOffset,Integer cOffset){
+	NaiveMatcher(Semaphore sem, Integer index, String[] words, String text, Integer lOffset,Integer cOffset){
 		this.words = words;
+		this.sem = sem;
 		this.text = text;
 		this.index = index;
 		this.lOffset = lOffset;
@@ -109,7 +112,13 @@ public class NaiveMatcher extends Thread {
 	   * This method is the one called when the thread is started
 	   */
 	public void run() {
+		try {
+			sem.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} 
 		search();
+		sem.release();
 	}
 
 }

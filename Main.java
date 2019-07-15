@@ -1,7 +1,11 @@
 package bigid;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
+import java.util.concurrent.Semaphore; 
+
 
 /**
 * The Project is a basic implementation 
@@ -13,6 +17,7 @@ import java.util.Scanner;
 */
 public class Main {
 	public static final int BUNCH = 1000;
+	public static final int CONCURRENT_THREADS = 10;
 	public static File file = new File("src/bigid/file.txt");
 	public static final String[] words = {"James","John","Robert","Michael","William","David",
 			"Richard","Charles","Joseph","Thomas","Christopher",
@@ -29,7 +34,9 @@ public class Main {
 	}
 	
 	public static void job() {
-		Aggregator aggregator = new Aggregator(words); 
+		Semaphore sem = new Semaphore(CONCURRENT_THREADS); // Use semaphore for limiting number of threads
+		Aggregator aggregator = new Aggregator(words);
+	    ArrayList<NaiveMatcher>  threads = new ArrayList<NaiveMatcher>();
 		String text = ""; // The part of the text for the next thread
 		int lineOffset = 0; // Pointer to save the offset where the thread begins to read the text
 		int charOffset = 0; // Pointer to save the offset where the thread begins to read the text
@@ -50,27 +57,39 @@ public class Main {
 				}
 				
 				// Run the thread
-				NaiveMatcher m = new NaiveMatcher(index, words, text,lineOffset, charOffset);
+				NaiveMatcher m = new NaiveMatcher(sem, index, words, text,lineOffset, charOffset);
 				m.start();
-				m.join(); 
-				
-				// Save the results
-				aggregator.add(m.results);
+				threads.add(m);
 				
 				// Update all the variables
 				index ++;
 				lineOffset += counter;
 				charOffset += text.length();
 				counter = 0;
-				text = "";		
+				text = "";
 			}
+			
+			
+			// Join all the threads
+			threads.forEach((thread) -> {
+				try {
+					thread.join();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			});
+			
+			// Get the results of each thread
+			threads.forEach((thread) -> aggregator.add(thread.results));
+
 			
 			// Display the results
 			aggregator.display();
-        } catch (FileNotFoundException | InterruptedException e) {
+			
+        } catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+       
 	}
 
 }
