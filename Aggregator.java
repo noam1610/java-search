@@ -51,12 +51,12 @@ public class Aggregator {
 	   */
 	public void display_one(String key, ArrayList<Integer> numbers) {
 		String output = key + " --> ";
-		for(int i = 0; i < numbers.size()-1; i++) {
+		for(int i = 0; i < numbers.size(); i++) {
 			if(i%2==0) {
 				output += "[charOffset=" + Integer.toString(numbers.get(i));
 			}
 			else {
-				output += ", lineOffset=" + Integer.toString(numbers.get(i)) + "], ";	
+				output += ", lineOffset=" + Integer.toString(numbers.get(i)) + "] ";	
 			}
 		}
 		System.out.println(output);

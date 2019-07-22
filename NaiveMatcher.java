@@ -24,7 +24,7 @@ public class NaiveMatcher extends Thread {
 	private Integer cOffset;
     public HashMap<String, ArrayList<Integer>> results;
 	private ArrayList<Integer> lineOffset = new ArrayList<Integer>();
-	public Integer index;
+	private Integer index;
 	private Semaphore sem; 
 
 	
